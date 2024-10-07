@@ -1,0 +1,5 @@
+NPM:
+- npm install express bcryptjs jsonwebtoken dotenv
+- npm install nodemon -g
+- npm install --save sequelize ORM
+- npm install --save mysql2
