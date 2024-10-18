@@ -3,7 +3,6 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { MovieProvider } from "./context/movies";
-import { ModalProvider } from "./components/ui/Dialog";
 import { AuthProvider } from "./context/auth";
 
 const root = ReactDOM.createRoot(

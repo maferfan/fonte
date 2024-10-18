@@ -1,5 +1,5 @@
 import "./Navbar.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useMovies } from "../../context/movies";
 import {
   Select,
@@ -9,45 +9,59 @@ import {
   SelectValue,
 } from "../ui/Select";
 import { useAuth } from "../../context/auth";
+import { genreService } from "../../service/genre.services";
+import { useEffect } from "react";
 
 export const Navbar = () => {
-  const {
-    handleFavoritesSearch,
-    handleWatchlistSearch,
-    handleRegister,
-    handleLogout,
-    setGenreId,
-  } = useMovies();
+  const nav = useNavigate();
+  const { setGenreId, setMovies, pageMovies, genreId } = useMovies();
+  const {  handleLogout, user } = useAuth();
+  const handleFavoritesSearchById = async () => {
+    try {
+      if(user){
+        const response = await genreService.getFavoriteByAccount(user.id as number, pageMovies);
+        setMovies(response);
+        setGenreId(-1)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  
+  useEffect(() => {
+    if(genreId === -1)
+    handleFavoritesSearchById();
+  }, [pageMovies]);
 
-  const { account, handleToken } = useAuth();
+  
   return (
     <div className="navbar-container">
       <div className="nav-left">
         <Link className="nav-title" to={"/"} onClick={() => setGenreId(0)}>
           StarWatch
         </Link>
-        {account.id && (
+        {user && (
           <div className=" nav-span-container span-info">
-            <Link onClick={() => handleFavoritesSearch()} to="/MyFavorites">
+             <Link onClick={() => handleFavoritesSearchById()} to="/MyFavorites">
               Favorites
-            </Link>
-            <Link onClick={() => handleWatchlistSearch()} to="/MyWatchlist">
+            </Link> 
+            {/* <Link onClick={() => handleWatchlistSearch()} to="/MyWatchlist">
               Watched
-            </Link>
+            </Link> } */}
           </div>
         )}
       </div>
-      {!account.id && (
+      {!user && (
         <div className="flex gap-4">
-          <button onClick={() => handleToken()}>Sign in</button>
-          <button onClick={() => handleRegister()}>Sign up</button>
+          <button onClick={() => nav("/Login")}>Login</button>
+          <button onClick={() => nav("/Register")}>Register</button>
         </div>
       )}
-      {account.id && (
+      {user && (
         <div>
           <Select>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder={`Bem vindo, ${account.username}`} />
+            <SelectTrigger className="w-[250px]">
+              <SelectValue placeholder={`Bem vindo, ${user?.name}!`} />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>

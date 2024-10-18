@@ -1,11 +1,4 @@
-import { useState } from "react";
-import { genreService } from "../../service/genre.services";
 import "./Popular.css";
-import {
-  IFavoritesAccount,
-  IMoviesVideos,
-  IWatchlistAccount,
-} from "../../interfaces/movies";
 import Paginator from "../Paginator/Paginator";
 import {
   Modal,
@@ -18,19 +11,20 @@ import ReactPlayer from "react-player";
 import { useMovies } from "../../context/movies";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/auth";
+import { genreService } from "../../service/genre.services";
 export const Popular = () => {
-  const {
-    movies,
-    pageMovies,
-    setPageMovies,
-    handleFavorites,
-    handleVideos,
-    handleWatchlist,
-    moviesVideos,
-  } = useMovies();
+  const { movies, pageMovies, setPageMovies, handleVideos, moviesVideos} =
+    useMovies();
 
-  const { account } = useAuth();
-
+  const { user } = useAuth();
+  const handleFavoriteMovie = async (movieId: number) => {
+    try {
+      if (!user) return `Usuário não encontrado`;
+      await genreService.postFavoriteByAccount(movieId, user.id);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div className="genre-container">
       <div className="grid sm:grid-cols-2  md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -71,31 +65,16 @@ export const Popular = () => {
                           <i>{row.overview}</i>
                         </div>
                       </ModalContent>
-                      {account.id && (
+                      {user && (
                         <ModalFooter className="gap-4">
                           <>
                             <button
                               className="bg-green-600 text-white  dark:text-black text-sm px-3 py-1 rounded-md border border-black w-28"
-                              onClick={() =>
-                                handleFavorites({
-                                  favorite: true,
-                                  media_id: row.id,
-                                  media_type: "movie",
-                                })
-                              }
+                              onClick={() => handleFavoriteMovie(row.id)}
                             >
                               Add on favorites
                             </button>
-                            <button
-                              className="bg-yellow-600 text-white  dark:text-black text-sm px-2 py-1 rounded-md border border-black w-28"
-                              onClick={() =>
-                                handleWatchlist({
-                                  watchlist: true,
-                                  media_id: row.id,
-                                  media_type: "movie",
-                                })
-                              }
-                            >
+                            <button className="bg-yellow-600 text-white  dark:text-black text-sm px-2 py-1 rounded-md border border-black w-28">
                               Watched
                             </button>{" "}
                           </>

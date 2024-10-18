@@ -6,15 +6,11 @@ import React, {
   useEffect,
 } from "react";
 import {
-  IFavoritesAccount,
   IMovies,
   IMoviesVideos,
-  IWatchlistAccount,
 } from "../interfaces/movies";
 import { IGenre } from "../interfaces/genre";
 import { genreService } from "../service/genre.services";
-import { useAuth } from "./auth";
-import { IAccount } from "../interfaces/account";
 interface IMovieContext {
   movies: IMovies;
   setMovies: React.Dispatch<React.SetStateAction<IMovies>>;
@@ -26,13 +22,7 @@ interface IMovieContext {
   setPageMovies: React.Dispatch<React.SetStateAction<number>>;
   moviesVideos: IMoviesVideos;
   setMoviesVideos: React.Dispatch<React.SetStateAction<IMoviesVideos>>;
-  handleWatchlist: (data: IWatchlistAccount) => Promise<void>;
   handleVideos: (movie_id: number) => Promise<void>;
-  handleFavorites: (data: IFavoritesAccount) => Promise<void>;
-  handleLogout: () => void;
-  handleFavoritesSearch: () => Promise<void>;
-  handleWatchlistSearch: () => Promise<void>;
-  handleRegister: () => void;
 }
 
 const MovieContext = createContext<IMovieContext | undefined>(undefined);
@@ -49,7 +39,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
   const [moviesVideos, setMoviesVideos] = useState<IMoviesVideos>(
     {} as IMoviesVideos
   );
-  const { account, sessionId } = useAuth();
+  
   const handleVideos = async (movie_id: number) => {
     try {
       const response = await genreService.getMoviesVideos(movie_id);
@@ -58,81 +48,25 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
       console.log(error);
     }
   };
-  const handleFavorites = async (data: IFavoritesAccount) => {
-    try {
-      const response = await genreService.postFavoriteByAccount(
-        account.id,
-        sessionId as string,
-        data
-      );
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
-  const handleWatchlist = async (data: IWatchlistAccount) => {
-    try {
-      const response = await genreService.postWatchlistByAccount(
-        account.id,
-        sessionId as string,
-        data
-      );
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  
 
-  const handleFavoritesSearch = async () => {
-    try {
-      if (account && sessionId) {
-        const response = await genreService.getFavoriteByAccount(
-          account.id,
-          sessionId as string 
-        );
-        setMovies(response);
-        setGenreId(-1)
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const handleWatchlistSearch = async () => {
-    try {
-      if (account && sessionId) {
-        const response = await genreService.getWatchlistByAccount(
-          account.id,
-          sessionId as string
-        );
-        setMovies(response); 
-        setGenreId(-1)
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleRegister = () => {
-    window.location.href = "https://www.themoviedb.org/signup";
-  };
-  const handleLogout = () => {
-    localStorage.removeItem("request_token");
-    localStorage.removeItem("session_id");
-    window.location.reload();
-  };
   useEffect(() => {
     const fetchData = async () => {
       if (genreId === 0) {
         const moviesPopular = await genreService.getPopularMovies(pageMovies);
         setMovies(moviesPopular);
-      } else if (genreId > 0 ) {
+      } else if (genreId > 0) {
         const moviesByGenre = await genreService.getMoviesByGenre(genreId);
         setMovies(moviesByGenre);
       }
     };
     fetchData();
   }, [pageMovies, genreId, setMovies]);
+
+  useEffect(() => {
+    setPageMovies(1);
+  }, [genreId]);
 
   return (
     <MovieContext.Provider
@@ -147,13 +81,7 @@ export const MovieProvider = ({ children }: MovieProviderProps) => {
         setGenre,
         moviesVideos,
         setMoviesVideos,
-        handleWatchlist,
-        handleFavorites,
         handleVideos,
-        handleFavoritesSearch,
-        handleLogout,
-        handleRegister,
-        handleWatchlistSearch,
       }}
     >
       {children}

@@ -1,11 +1,7 @@
 export interface IAccount {
-  avatar: Avatar;
-  id: number;
-  iso_639_1: string;
-  iso_3166_1: string;
-  name: string;
-  include_adult: boolean;
-  username: string;
+  name: string,
+  id: number,
+  email: string,
 }
 
 export interface Avatar {

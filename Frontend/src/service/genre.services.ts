@@ -1,4 +1,3 @@
-import { IFavoritesAccount, IWatchlistAccount } from "../interfaces/movies";
 import { api } from "./baseUrl.services";
 
 export const genreService = {
@@ -34,40 +33,38 @@ export const genreService = {
       console.log(error);
     }
   },
-  postFavoriteByAccount: async (
-    account_id: number,
-    session_id: string,
-    params: IFavoritesAccount
-  ) => {
+  postFavoriteByAccount: async (movieId: number, userId: number) => {
     try {
       const response = await api.post(
-        `/account/favorite/${account_id}/${session_id}`,
-        params
+        `/user/favorite`,
+        {
+          movieId: movieId,
+          id: userId,
+        }
       );
       return response.data;
     } catch (error) {
       console.log(error);
     }
   },
-  postWatchlistByAccount: async (
-    account_id: number,
-    session_id: string,
-    params: IWatchlistAccount
-  ) => {
+  postWatchlistByAccount: async (movieId: number, userId: number) => {
     try {
       const response = await api.post(
-        `/account/watchlist/${account_id}/${session_id}`,
-        params
+        `/user/favorite`,
+        {
+          movieId: movieId,
+          userId: userId,
+        }
       );
       return response.data;
     } catch (error) {
       console.log(error);
     }
   },
-  getFavoriteByAccount: async (account_id: number, session_id: string) => {
+  getFavoriteByAccount: async (userId: number, page: number) => {
     try {
       const response = await api.get(
-        `/account/favorite/${account_id}/${session_id}`
+        `/user/${userId}/favorite?page=${page}`
       );
       return response.data;
     } catch (error) {
